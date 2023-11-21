@@ -27,17 +27,17 @@ public final class Constants {
         public static final int rightFrontCANID = 3;
         public static final int rightBackCANID = 4;
 
-        public static final double ksVolts = 0.20322;
-        public static final double kvVoltSecondsPerMeter = 3.2976;
-        public static final double kaVoltSecondsSquaredPerMeter = 0.67542;
-        public static final double kPDriveVel = 4.569;
+        public static final double ksVolts = -0.12149;
+        public static final double kvVoltSecondsPerMeter = 3.0982;
+        public static final double kaVoltSecondsSquaredPerMeter = 2.2703;
+        public static final double kPDriveVel = 0.0024266;
 
         // public static final double ksVolts = 0.1219;
         // public static final double kvVoltSecondsPerMeter = 3.343;
         // public static final double kaVoltSecondsSquaredPerMeter = 1.0356;
         // public static final double kPDriveVel = 2.2662;
 
-        public static final double kTrackWidthMeters = Units.inchesToMeters(23);
+        public static final double kTrackWidthMeters = 0.43;
         public static final DifferentialDriveKinematics kDriveKinematics = new DifferentialDriveKinematics(
                 kTrackWidthMeters);
 
@@ -49,10 +49,11 @@ public final class Constants {
         public static final double kRamseteZeta = 0.7;
 
         public static final double kGearRatio = 12.6;
-        public static final double kWheelRadiusInches = 3;
+        public static final double kWheelRadiusInches = 6;
 
-        public static final double kLinearDistanceConversionFactor = (Units
-                .inchesToMeters(1 / (kGearRatio * 2 * Math.PI * Units.inchesToMeters(kWheelRadiusInches)) * 10));
+        public static final double kLinearDistanceConversionFactor = (0.0873) * Math.PI * Units.inchesToMeters(kWheelRadiusInches);
+        //(Units
+          //      .inchesToMeters(1 / (kGearRatio * 2 * Math.PI * Units.inchesToMeters(kWheelRadiusInches)) * 10));
 
     }
 

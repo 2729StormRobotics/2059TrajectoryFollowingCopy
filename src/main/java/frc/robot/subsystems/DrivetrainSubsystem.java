@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
@@ -42,7 +43,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   DifferentialDrive differentialDrive = new DifferentialDrive(leftControllerGroup, rightControllerGroup);
 
-  public final static Gyro navX = new AHRS(SPI.Port.kMXP);
+  public AHRS ahrs;
   private final DifferentialDriveOdometry m_odometry;
 
   /** Creates a new ExampleSubsystem. */
@@ -66,13 +67,14 @@ public class DrivetrainSubsystem extends SubsystemBase {
     rightControllerGroup.setInverted(true);
     leftControllerGroup.setInverted(false);
 
-    navX.reset();
-    navX.calibrate();
-    resetEncoders();
+    try {
+      ahrs = new AHRS(SPI.Port.kMXP);
+    } catch (RuntimeException ex){
+      DriverStation.reportError("Error NAvx "+ ex.getMessage(), true);
+    }
 
-    m_odometry = new DifferentialDriveOdometry(navX.getRotation2d());
-    m_odometry.resetPosition(new Pose2d(), navX.getRotation2d());
-    setBreakMode();
+    m_odometry = new DifferentialDriveOdometry(ahrs.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition());
+    m_odometry.resetPosition(ahrs.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition(), new Pose2d());
   }
 
   public void setBreakMode() {
@@ -113,13 +115,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public double getLeftEncoderVelocity() {
     return leftEncoder.getVelocity();
   }
-
-  public double getTurnRate() {
-    return -navX.getRate();
-  }
-
-  public static double getHeading() {
-    return navX.getRotation2d().getDegrees();
+  public double getHeading() {
+    return ahrs.getAngle();
   }
 
   public Pose2d getPose() {
@@ -128,7 +125,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   public void resetOdometry(Pose2d pose) {
     resetEncoders();
-    m_odometry.resetPosition(pose, navX.getRotation2d());
+    m_odometry.resetPosition(ahrs.getRotation2d(), leftEncoder.getPosition(), rightEncoder.getPosition(), pose);
   }
 
   public DifferentialDriveWheelSpeeds getWheelSpeeds() {
@@ -157,13 +154,9 @@ public class DrivetrainSubsystem extends SubsystemBase {
     differentialDrive.setMaxOutput(maxOutput);
   }
 
-  public static void zeroHeading() {
-    navX.calibrate();
-    navX.reset();
-  }
-
-  public Gyro getGyro() {
-    return navX;
+  public void zeroHeading() {
+    ahrs.calibrate();
+    ahrs.reset();
   }
 
   public DifferentialDriveOdometry getOdometry() {
@@ -174,7 +167,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public void periodic() {
 
     // This method will be called once per scheduler run
-    m_odometry.update(navX.getRotation2d(), leftEncoder.getPosition(),
+    m_odometry.update(ahrs.getRotation2d(), leftEncoder.getPosition(),
         rightEncoder.getPosition());
 
     SmartDashboard.putNumber("Left encoder value meters", getLeftEncoderPosition());

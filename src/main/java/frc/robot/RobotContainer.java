@@ -90,7 +90,7 @@ public class RobotContainer {
       return new SequentialCommandGroup(
           new InstantCommand(() -> drivetrainSubsystem.resetOdometry(trajectory.getInitialPose())), ramseteCommand);
     } else {
-      return ramseteCommand;
+      return ramseteCommand.andThen(() -> drivetrainSubsystem.tankDriveVolts(0, 0));
     }
 
   }
