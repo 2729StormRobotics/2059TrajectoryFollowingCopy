@@ -54,12 +54,9 @@ public class RobotContainer {
     configureButtonBindings();
     drivetrainSubsystem.setDefaultCommand(driveWithJoystickCommand);
 
-    chooser.addOption("curvy path", loadPathplannerTrajectoryToRamseteCommand(
-        "pathplanner/generatedJSON/curvy.wpilib.json",
-        true));
-    chooser.addOption("straight", loadPathplannerTrajectoryToRamseteCommand(
+    loadPathplannerTrajectoryToRamseteCommand(
         "pathplanner/generatedJSON/straight.wpilib.json",
-        true));
+        true);
 
     Shuffleboard.getTab("Autonomous").add(chooser);
 

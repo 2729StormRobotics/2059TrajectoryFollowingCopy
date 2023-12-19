@@ -64,8 +64,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     leftBackMotor.follow(leftFrontMotor);
     rightBackMotor.follow(rightFrontMotor);
 
-    rightControllerGroup.setInverted(true);
-    leftControllerGroup.setInverted(false);
+    rightControllerGroup.setInverted(false);
+    leftControllerGroup.setInverted(true);
 
     try {
       ahrs = new AHRS(SPI.Port.kMXP);
@@ -157,6 +157,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
   public void zeroHeading() {
     ahrs.calibrate();
     ahrs.reset();
+  }
+
+  public double getTurnRate() {
+    return -ahrs.getRate();
   }
 
   public DifferentialDriveOdometry getOdometry() {
