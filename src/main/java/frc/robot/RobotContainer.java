@@ -111,7 +111,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return chooser.getSelected();
+    return loadPathplannerTrajectoryToRamseteCommand(
+        "pathplanner/generatedJSON/straight.wpilib.json",
+        true);
   }
 
   public DrivetrainSubsystem getDriveTrainSubsystem() {
