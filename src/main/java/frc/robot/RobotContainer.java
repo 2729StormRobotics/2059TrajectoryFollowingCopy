@@ -73,7 +73,8 @@ public class RobotContainer {
       System.out.println("Unable to read from file " + filename);
       return new InstantCommand();
     }
-
+    drivetrainSubsystem.m_field.getObject("traj").setTrajectory(trajectory);
+    
     RamseteCommand ramseteCommand = new RamseteCommand(trajectory, drivetrainSubsystem::getPose,
         new RamseteController(DriveTrainConstants.kRamseteB, DriveTrainConstants.kRamseteZeta),
         new SimpleMotorFeedforward(DriveTrainConstants.ksVolts, DriveTrainConstants.kvVoltSecondsPerMeter,
