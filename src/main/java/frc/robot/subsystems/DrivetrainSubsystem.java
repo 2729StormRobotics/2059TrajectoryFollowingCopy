@@ -39,10 +39,10 @@ public class DrivetrainSubsystem extends SubsystemBase {
   RelativeEncoder leftEncoder = leftFrontMotor.getEncoder();
   RelativeEncoder rightEncoder = rightFrontMotor.getEncoder();
 
-  MotorControllerGroup leftControllerGroup = new MotorControllerGroup(leftFrontMotor, leftBackMotor);
-  MotorControllerGroup rightControllerGroup = new MotorControllerGroup(rightFrontMotor, rightBackMotor);
+  // MotorControllerGroup leftControllerGroup = new MotorControllerGroup(leftFrontMotor, leftBackMotor);
+  // MotorControllerGroup rightControllerGroup = new MotorControllerGroup(rightFrontMotor, rightBackMotor);
 
-  DifferentialDrive differentialDrive = new DifferentialDrive(leftControllerGroup, rightControllerGroup);
+  DifferentialDrive differentialDrive = new DifferentialDrive(leftFrontMotor, rightFrontMotor);
 
   public Field2d m_field = new Field2d();
   public AHRS ahrs;
@@ -55,7 +55,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     rightFrontMotor.restoreFactoryDefaults();
     rightBackMotor.restoreFactoryDefaults();
     
-    rightFrontMotor.setInverted(true);
+    leftFrontMotor.setInverted(true);
 
     leftEncoder.setPosition(0);
     rightEncoder.setPosition(0);
@@ -135,8 +135,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public void tankDriveVolts(double leftVolts, double rightVolts) {
-    leftControllerGroup.setVoltage(leftVolts);
-    rightControllerGroup.setVoltage(rightVolts);
+    leftFrontMotor.setVoltage(leftVolts);
+    rightFrontMotor.setVoltage(rightVolts);
     differentialDrive.feed();
   }
 

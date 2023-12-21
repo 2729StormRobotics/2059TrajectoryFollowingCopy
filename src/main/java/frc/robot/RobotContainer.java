@@ -6,12 +6,19 @@ package frc.robot;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.trajectory.TrajectoryUtil;
+import edu.wpi.first.math.trajectory.constraint.DifferentialDriveVoltageConstraint;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -42,7 +49,7 @@ public class RobotContainer {
 
   private final DriveWithJoystickCommand driveWithJoystickCommand = new DriveWithJoystickCommand(drivetrainSubsystem);
 
-  public static Joystick joystick = new Joystick(0);
+  public static XboxController m_driver = new XboxController(Constants.kDriverControllerPort);
 
   SendableChooser<Command> chooser = new SendableChooser<>();
 
@@ -54,25 +61,50 @@ public class RobotContainer {
     configureButtonBindings();
     drivetrainSubsystem.setDefaultCommand(driveWithJoystickCommand);
 
-    loadPathplannerTrajectoryToRamseteCommand(
-        "pathplanner/generatedJSON/straight.wpilib.json",
-        true);
-
     Shuffleboard.getTab("Autonomous").add(chooser);
 
   }
 
   public Command loadPathplannerTrajectoryToRamseteCommand(String filename, boolean resetOdomtry) {
-    Trajectory trajectory;
+    
+    var autoVoltageConstraint =
+        new DifferentialDriveVoltageConstraint(
+            new SimpleMotorFeedforward(
+                DriveTrainConstants.ksVolts,
+                DriveTrainConstants.kvVoltSecondsPerMeter,
+                DriveTrainConstants.kaVoltSecondsSquaredPerMeter),
+            DriveTrainConstants.kDriveKinematics,
+            10);
 
-    try {
-      Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(filename);
-      trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-    } catch (IOException exception) {
-      DriverStation.reportError("Unable to open trajectory" + filename, exception.getStackTrace());
-      System.out.println("Unable to read from file " + filename);
-      return new InstantCommand();
-    }
+    // Create config for trajectory
+    TrajectoryConfig config =
+        new TrajectoryConfig(
+                1,
+                2)
+            // Add kinematics to ensure max speed is actually obeyed
+            .setKinematics(DriveTrainConstants.kDriveKinematics)
+            // Apply the voltage constraint
+            .addConstraint(autoVoltageConstraint);
+
+    // An example trajectory to follow.  All units in meters.
+    Trajectory trajectory =
+        TrajectoryGenerator.generateTrajectory(
+            // Start at the origin facing the +X direction
+            new Pose2d(0, 0, new Rotation2d(0)),
+            // Pass through these two interior waypoints, making an 's' curve path
+            List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+            // End 3 meters straight ahead of where we started, facing forward
+            new Pose2d(3, 0, new Rotation2d(0)),
+            // Pass config
+            config);
+    // try {
+    //   Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(filename);
+    //   trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+    // } catch (IOException exception) {
+    //   DriverStation.reportError("Unable to open trajectory" + filename, exception.getStackTrace());
+    //   System.out.println("Unable to read from file " + filename);
+    //   return new InstantCommand();
+    // }
     drivetrainSubsystem.m_field.getObject("traj").setTrajectory(trajectory);
     
     RamseteCommand ramseteCommand = new RamseteCommand(trajectory, drivetrainSubsystem::getPose,
