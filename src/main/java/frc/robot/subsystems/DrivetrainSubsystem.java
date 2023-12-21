@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -43,6 +44,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
   DifferentialDrive differentialDrive = new DifferentialDrive(leftControllerGroup, rightControllerGroup);
 
+  public Field2d m_field = new Field2d();
   public AHRS ahrs;
   private final DifferentialDriveOdometry m_odometry;
 
@@ -62,6 +64,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     leftEncoder.setPositionConversionFactor(DriveTrainConstants.kLinearDistanceConversionFactor);
     rightEncoder.setVelocityConversionFactor(DriveTrainConstants.kLinearDistanceConversionFactor / 60);
     leftEncoder.setVelocityConversionFactor(DriveTrainConstants.kLinearDistanceConversionFactor / 60);
+    SmartDashboard.putData("Field", m_field);
 
     leftBackMotor.follow(leftFrontMotor);
     rightBackMotor.follow(rightFrontMotor);
@@ -172,7 +175,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
     m_odometry.update(ahrs.getRotation2d(), leftEncoder.getPosition(),
         rightEncoder.getPosition());
-
+    m_field.setRobotPose(m_odometry.getPoseMeters());
     SmartDashboard.putNumber("Left encoder value meters", getLeftEncoderPosition());
     SmartDashboard.putNumber("RIGHT encoder value meters", getRightEncoderPosition());
     SmartDashboard.putNumber("Gyro heading", getHeading());
