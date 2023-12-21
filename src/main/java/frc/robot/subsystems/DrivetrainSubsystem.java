@@ -52,6 +52,8 @@ public class DrivetrainSubsystem extends SubsystemBase {
     leftBackMotor.restoreFactoryDefaults();
     rightFrontMotor.restoreFactoryDefaults();
     rightBackMotor.restoreFactoryDefaults();
+    
+    rightFrontMotor.setInverted(true);
 
     leftEncoder.setPosition(0);
     rightEncoder.setPosition(0);
@@ -63,9 +65,6 @@ public class DrivetrainSubsystem extends SubsystemBase {
 
     leftBackMotor.follow(leftFrontMotor);
     rightBackMotor.follow(rightFrontMotor);
-
-    rightControllerGroup.setInverted(false);
-    leftControllerGroup.setInverted(true);
 
     try {
       ahrs = new AHRS(SPI.Port.kMXP);
@@ -101,7 +100,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public double getRightEncoderPosition() {
-    return -rightEncoder.getPosition();
+    return rightEncoder.getPosition();
   }
 
   public double getLeftEncoderPosition() {
@@ -109,7 +108,7 @@ public class DrivetrainSubsystem extends SubsystemBase {
   }
 
   public double getRightEncoderVelocity() {
-    return -rightEncoder.getVelocity();
+    return rightEncoder.getVelocity();
   }
 
   public double getLeftEncoderVelocity() {
